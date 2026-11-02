@@ -1,0 +1,315 @@
+:root {
+  color-scheme: light;
+  --paper: #e6eeee;
+  --surface: #f6faf9;
+  --ink: #12303a;
+  --ink-2: #44606a;
+  --line: #c9d7d8;
+  --glass: #d8e4e5;
+  --water: #155a96;
+  --ahead: #4a98d9;
+  --warn: #8a4b00;
+  --warn-bg: #fbeed3;
+  --bad: #a32a2a;
+  --good: #1e6b3a;
+  --tube-h: 280px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0e1c21;
+    --surface: #15272e;
+    --ink: #e4eeee;
+    --ink-2: #a3b9bf;
+    --line: #2d444c;
+    --glass: #223840;
+    --water: #459ae3;
+    --ahead: #27689f;
+    --warn: #f3bf6a;
+    --warn-bg: #3a2a10;
+    --bad: #ff9b9b;
+    --good: #7ed39b;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1rem/1.5 "Schibsted Grotesk Variable", system-ui, sans-serif;
+}
+
+#app { max-width: 1240px; margin: 0 auto; padding: 0 16px 48px; }
+
+a { color: inherit; text-underline-offset: 3px; }
+
+:focus-visible { outline: 2px solid var(--water); outline-offset: 2px; }
+
+button, input { font: inherit; color: inherit; }
+
+button {
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button.quiet { background: none; color: var(--ink); border-color: var(--line); }
+
+.banner { margin: 0 -16px; padding: 10px 16px; background: var(--warn-bg); color: var(--warn); font-weight: 600; }
+.banner.bad { color: var(--bad); }
+
+.bar { display: flex; justify-content: space-between; gap: 16px; padding: 18px 0 0; }
+.brand { font-weight: 700; text-decoration: none; }
+
+h1 {
+  font-size: clamp(2rem, 1.2rem + 3.4vw, 3.6rem);
+  line-height: 1.06;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  max-width: 19em;
+  margin: 40px 0 8px;
+}
+
+.stamp { margin: 0; color: var(--ink-2); }
+
+/* Period picker */
+.periods { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 28px 0 8px; }
+.periods > div { display: flex; flex-wrap: wrap; gap: 2px; }
+
+.period {
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  color: var(--ink-2);
+  padding: 6px 10px;
+}
+.period[aria-pressed="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--water); }
+.ahead .period[aria-pressed="true"] { border-bottom-color: var(--ahead); }
+
+/* The wall of rain gauges: one shared scale, one tube per town. */
+.wall-section { margin-top: 12px; }
+
+.wall {
+  position: relative;
+  display: flex;
+  gap: 18px;
+  padding: 0 0 8px 54px;
+  overflow-x: auto;
+}
+
+.scale {
+  position: absolute;
+  left: 0;
+  top: 54px;
+  height: var(--tube-h);
+  min-width: 100%;
+}
+
+.scale span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--at) * 100%);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.scale b { font-weight: 400; }
+
+.province { position: relative; flex: 1 0 auto; }
+
+.province h2 {
+  margin: 0 0 4px;
+  padding-bottom: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  height: 28px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.gauges { display: flex; justify-content: space-around; gap: 2px; }
+
+.gauge {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 42px;
+  border-radius: 6px;
+}
+.gauge:hover .name, .gauge[aria-pressed="true"] .name { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.gauge:focus-visible { outline: 2px solid var(--water); outline-offset: 2px; }
+
+.value {
+  height: 22px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tube {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: var(--tube-h);
+  background: color-mix(in srgb, var(--glass) 80%, transparent);
+  border-radius: 0 0 5px 5px;
+  overflow: hidden;
+}
+.gauge[aria-pressed="true"] .tube { box-shadow: 0 0 0 2px var(--ink); }
+
+.water {
+  position: absolute;
+  inset: auto 0 0;
+  height: calc(var(--fill) * 100%);
+  background: var(--water);
+  border-radius: 4px 4px 0 0;
+  transition: height 420ms cubic-bezier(.2,.7,.2,1);
+}
+.forecast .water { background: var(--ahead); }
+
+.name {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  margin-top: 8px;
+  height: 92px;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.note { color: var(--ink-2); max-width: 70ch; }
+.problem { color: var(--bad); }
+.done { color: var(--good); font-weight: 600; }
+
+/* Town detail */
+.detail {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-top: 20px;
+  scroll-margin-top: 12px;
+}
+.detail-head, .table-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.detail h2 { margin: 0; font-size: 1.75rem; line-height: 1.2; }
+.detail h3 { font-size: 1rem; margin: 22px 0 6px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; color: var(--ink-2); font-size: 0.875rem; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key { width: 12px; height: 12px; border-radius: 3px; background: var(--water); }
+.key.forecast { background: var(--ahead); }
+
+.chart { position: relative; min-height: 190px; }
+.chart svg { display: block; }
+.grid { stroke: var(--line); stroke-width: 1; }
+.base { stroke: var(--ink-2); stroke-width: 1; }
+.now { stroke: var(--ink); stroke-width: 1; }
+.axis { fill: var(--ink-2); font-size: 12px; font-variant-numeric: tabular-nums; }
+.mark { fill: var(--water); }
+.mark.forecast { fill: var(--ahead); }
+
+.tip {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  z-index: 2;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+details.data { margin-top: 4px; font-size: 0.875rem; }
+details.data summary { cursor: pointer; color: var(--ink-2); padding: 4px 0; }
+details.data .scroll { max-height: 280px; overflow-y: auto; }
+
+/* Table */
+.table-section { margin-top: 40px; }
+.table-head h2 { font-size: 1.25rem; margin: 0; }
+.scroll { overflow-x: auto; margin-top: 8px; }
+
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 12px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-weight: 600; border-bottom: 2px solid var(--ink); vertical-align: bottom; }
+thead th button { all: unset; cursor: pointer; }
+thead th button:focus-visible { outline: 2px solid var(--water); outline-offset: 2px; }
+tbody th { font-weight: 500; position: sticky; left: 0; background: var(--paper); }
+tbody th small { display: block; font-weight: 400; white-space: normal; max-width: 26ch; }
+.ahead-cell { color: var(--ink-2); }
+
+button.link { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+button.link:hover { text-decoration-color: currentColor; }
+button.link:focus-visible { outline: 2px solid var(--water); outline-offset: 2px; }
+
+footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 0.875rem; }
+footer p { max-width: 80ch; }
+
+.empty { padding: 48px 0; }
+
+/* Manage towns */
+.manage { max-width: 680px; }
+.manage h1 { font-size: 2.5rem; margin-top: 28px; }
+.manage h2 { font-size: 1.25rem; margin: 32px 0 8px; }
+.manage label { display: block; font-weight: 600; margin-bottom: 4px; }
+.manage input { width: 100%; padding: 8px 10px; border: 1px solid var(--ink-2); border-radius: 6px; background: var(--surface); }
+.manage form:not(.grid):not(.inline) button { margin-top: 10px; }
+
+form.inline { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; }
+form.inline label { grid-column: 1 / -1; }
+
+form.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-items: end; }
+form.grid p { margin: 0; }
+form.grid button { grid-column: 1 / -1; justify-self: start; }
+
+.results { list-style: none; margin: 12px 0 0; padding: 0; }
+.results li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.results small { display: block; color: var(--ink-2); }
+
+/* On phones the tubes lie on their side. */
+@media (max-width: 760px) {
+  h1 { margin-top: 24px; }
+  .wall { display: block; padding: 0; overflow: visible; }
+  .scale { display: none; }
+  .province { margin-top: 18px; }
+  .gauges { display: block; }
+  .gauge {
+    display: grid;
+    grid-template-columns: 112px 1fr 52px;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 34px;
+  }
+  .name { writing-mode: horizontal-tb; transform: none; height: auto; margin: 0; grid-column: 1; grid-row: 1; }
+  .tube { width: 100%; height: 14px; grid-column: 2; grid-row: 1; border-radius: 0 5px 5px 0; }
+  .water { inset: 0 auto 0 0; height: 100%; width: calc(var(--fill) * 100%); border-radius: 0 4px 4px 0; }
+  .value { grid-column: 3; grid-row: 1; height: auto; text-align: right; }
+  .detail { padding: 14px; }
+  form.grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
+}
+
+@media (forced-colors: active) {
+  .water, .mark, .key { background: Highlight; fill: Highlight; }
+}

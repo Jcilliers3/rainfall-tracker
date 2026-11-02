@@ -1,0 +1,9 @@
+project_id = "rainfall-tracker"
+
+# These two functions check their own secret header, so Supabase's login check
+# is switched off for them.
+[functions.collect-rainfall]
+verify_jwt = false
+
+[functions.manage-towns]
+verify_jwt = false
